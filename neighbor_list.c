@@ -46,13 +46,59 @@ void printGraph(Graph* graph) {
     }
 }
 
-int main() {
-    int V = 3;
-    Graph* graph = createGraph(V);
-    addEdge(graph, 0, 1);
-    addEdge(graph, 1, 2);
-    addEdge(graph, 2, 0);
+Graph* handleUserInput() {
+    int vertices, edges, choice;
+    
+    printf("Enter the number of vertices: ");
+    scanf("%d", &vertices);
 
+    while (vertices <= 0) {
+        printf("[!] Number of vertices must be greater than 0.\n");
+        printf("Enter the number of vertices: ");
+        scanf("%d", &vertices);
+    }
+
+
+    Graph* graph = createGraph(vertices);
+
+    printf("Choose graph type:\n");
+    printf("1. Manual input\n");
+    printf("2. Random graph\n");
+    do {
+        printf("Enter choice (1 or 2): ");
+        scanf("%d", &choice);
+        if (choice != 1 && choice != 2)
+            printf("Error: Please enter 1 or 2.\n");
+    } while (choice != 1 && choice != 2);
+
+    if (choice == 1) {
+        printf("Enter the number of edges: ");
+        scanf("%d", &edges);
+
+        for (int i = 0; i < edges; i++) {
+            int src, dest;
+            printf("Enter edge %d [src dest]: ", i + 1);
+            scanf("%d %d", &src, &dest);
+            addEdge(graph, src, dest);
+        }
+    } else {
+        printf("Enter the number of edges: ");
+        scanf("%d", &edges);
+
+        for (int i = 0; i < edges; i++) {
+            int src = rand() % vertices;
+            int dest = rand() % vertices;
+            if (src != dest) {
+                addEdge(graph, src, dest);
+            }
+        }
+    }
+    return graph;
+}
+
+int main() {
+    Graph* graph = handleUserInput();
     printGraph(graph);
+
     return 0;
 }
