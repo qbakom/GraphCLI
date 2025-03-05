@@ -124,6 +124,69 @@ Graph* handleUserInput() {
     }
 }
 
+void freeGraph(Graph* graph) {
+    if (!graph) return;
+    
+    for (int v = 0; v < graph->V; v++) {
+        Node* current = graph->adjLists[v];
+        while (current) {
+            Node* temp = current;
+            current = current->next;
+            free(temp);
+        }
+    }
+    
+    free(graph->adjLists);
+    free(graph);
+}
+
+bool isEdgeBidirectional(Graph* graph, int src, int dest) {
+    bool srcToDest = false;
+    bool destToSrc = false;
+    
+    Node* temp = graph->adjLists[src];
+    while (temp) {
+        if (temp->vertex == dest) {
+            srcToDest = true;
+            break;
+        }
+        temp = temp->next;
+    }
+    
+    temp = graph->adjLists[dest];
+    while (temp) {
+        if (temp->vertex == src) {
+            destToSrc = true;
+            break;
+        }
+        temp = temp->next;
+    }
+    
+    return srcToDest && destToSrc;
+}
+
+bool testBidirection(Graph* graph) {
+    printf("\nTesting graph bidirectionality...\n");
+    
+    for (int src = 0; src < graph->V; src++) {
+        Node* temp = graph->adjLists[src];
+        
+        while (temp) {
+            int dest = temp->vertex;
+            
+            if (!isEdgeBidirectional(graph, src, dest)) {
+                printf("FAIL: Edge (%d -> %d) is not bidirectional!\n", src, dest);
+                return false;
+            }
+            
+            temp = temp->next;
+        }
+    }
+    
+    printf("SUCCESS: All edges are bidirectional! Graph is undirected.\n");
+    return true;
+}
+
 int main() {
     Graph* graph = handleUserInput();
     if (graph != NULL) {
