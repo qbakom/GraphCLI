@@ -3,8 +3,9 @@
 
 /**
  * Send a query to the LM Studio API
- * @param prompt User's natural language request for graph generation
+ * 
+ * @param userPrompt The user prompt to send to the API
  */
-void sendQuery(char *prompt);
+void sendQuery(char *userPrompt);
 
-#endif
+#endif /* API_H */
