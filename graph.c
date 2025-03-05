@@ -105,9 +105,8 @@ graph_error_t graph_add_edge(Graph* graph, int src, int dest) {
     if (src < 0 || src >= graph->V || dest < 0 || dest >= graph->V)
         return GRAPH_ERROR_INVALID_VERTEX;
     
-    if (src == dest) return GRAPH_ERROR_INVALID_VERTEX; // No self-loops
+    if (src == dest) return GRAPH_ERROR_INVALID_VERTEX;
     
-    // Check if edge already exists
     if (graph_has_edge(graph, src, dest) == GRAPH_OK)
         return GRAPH_ERROR_EDGE_EXISTS;
     
@@ -119,9 +118,7 @@ graph_error_t graph_add_edge(Graph* graph, int src, int dest) {
     graph->adjLists[src] = newNode;
     graph->degrees[src]++;
     
-    // If bidirectional, add the other direction too
     if (!graph->isDirected) {
-        // Check if reverse edge already exists
         if (graph_has_edge(graph, dest, src) == GRAPH_OK) {
             return GRAPH_OK;
         }
@@ -182,7 +179,7 @@ Graph* graph_generate_random(int vertices, int edgeCount, int isDirected) {
         int src = rand() % vertices;
         int dest = rand() % vertices;
         
-        if (src != dest) { // Avoid self-loops
+        if (src != dest) {
             graph_error_t result = graph_add_edge(graph, src, dest);
             if (result == GRAPH_OK) {
                 addedEdges++;
@@ -205,7 +202,7 @@ Graph* handleUserInput() {
         printf("Enter choice (1 or 2): ");
         if (scanf("%d", &mode) != 1) {
             printf("[!] Invalid input. Please enter 1 or 2.\n");
-            while (getchar() != '\n'); // Clear input buffer
+            while (getchar() != '\n');
             continue;
         }
         
@@ -214,11 +211,10 @@ Graph* handleUserInput() {
     }
 
     if (mode == 1) {
-        // Manual mode
         printf("Enter the number of vertices: ");
         while (scanf("%d", &vertices) != 1 || vertices <= 0) {
             printf("[!] Invalid input. Please enter a positive integer: ");
-            while (getchar() != '\n'); // Clear input buffer
+            while (getchar() != '\n');
         }
         
         printf("Graph type:\n");
@@ -230,7 +226,7 @@ Graph* handleUserInput() {
             if (scanf("%d", &graphTypeChoice) != 1 || 
                (graphTypeChoice != 1 && graphTypeChoice != 2)) {
                 printf("[!] Invalid input. Please enter 1 or 2.\n");
-                while (getchar() != '\n'); // Clear input buffer
+                while (getchar() != '\n');
                 continue;
             }
             break;
@@ -246,7 +242,7 @@ Graph* handleUserInput() {
             if (scanf("%d", &genChoice) != 1 || 
                (genChoice != 1 && genChoice != 2)) {
                 printf("[!] Invalid input. Please enter 1 or 2.\n");
-                while (getchar() != '\n'); // Clear input buffer
+                while (getchar() != '\n');
                 continue;
             }
             break;
@@ -256,11 +252,10 @@ Graph* handleUserInput() {
         if (!graph) return NULL;
         
         if (genChoice == 1) {
-            // Manual edge input
             printf("Enter the number of edges: ");
             while (scanf("%d", &edges) != 1 || edges < 0) {
                 printf("[!] Invalid input. Please enter a non-negative integer: ");
-                while (getchar() != '\n'); // Clear input buffer
+                while (getchar() != '\n');
             }
 
             int maxEdges = isDirected ? vertices * (vertices - 1) : vertices * (vertices - 1) / 2;
@@ -278,12 +273,12 @@ Graph* handleUserInput() {
                        src == dest) {
                     printf("[!] Invalid edge. Source and destination must be different values between 0 and %d.\n", vertices-1);
                     printf("Enter edge %d [source destination]: ", i + 1);
-                    while (getchar() != '\n'); // Clear input buffer
+                    while (getchar() != '\n');
                 }
                 
                 graph_error_t result = graph_add_edge(graph, src, dest);
                 if (result != GRAPH_OK) {
-                    i--; // Try again for this edge
+                    i--;
                     if (result == GRAPH_ERROR_EDGE_EXISTS) {
                         printf("[!] Edge already exists. Please enter a different edge.\n");
                     } else {
@@ -292,40 +287,49 @@ Graph* handleUserInput() {
                 }
             }
         } else {
-            // Random graph
             printf("Enter the number of edges: ");
             while (scanf("%d", &edges) != 1 || edges < 0) {
                 printf("[!] Invalid input. Please enter a non-negative integer: ");
-                while (getchar() != '\n'); // Clear input buffer
+                while (getchar() != '\n');
             }
             
-            // Free the previously created graph and generate a random one
             graph_free(graph);
             graph = graph_generate_random(vertices, edges, isDirected);
         }
         
         return graph;
     } else {
-        // Chat mode with LM Studio
         printf("\n=== Chat Mode ===\n");
         printf("Describe the graph you want to create in natural language.\n");
         printf("Example: 'Create a directed graph with 5 vertices and 7 edges'\n\n");
         
-        while (getchar() != '\n'); // Clear input buffer
+        while (getchar() != '\n');
         printf("Your request: ");
         fgets(userInput, sizeof(userInput), stdin);
-        userInput[strcspn(userInput, "\n")] = 0; // Remove newline
+        userInput[strcspn(userInput, "\n")] = 0;
         
         printf("\nSending request to LM Studio...\n");
+        use_fallback = 0;
         sendQuery(userInput);
         
+        if (use_fallback) {
+            createFallbackGraph(userInput);
+        } else {
+            finishJsonParsing();
+            
+            if (parsed_nodes <= 0) {
+                printf("[!] Failed to parse valid graph from LM Studio response.\n");
+                printf("[!] Using fallback mechanism.\n");
+                createFallbackGraph(userInput);
+            }
+        }
+        
         if (parsed_nodes <= 0) {
-            printf("[!] Failed to parse valid node count from LM Studio response.\n");
+            printf("[!] Failed to create graph, even with fallback.\n");
             return NULL;
         }
         
-        // Default to undirected graph (can be enhanced to extract this from the prompt)
-        Graph* graph = graph_create(parsed_nodes, 0); // 0 = undirected
+        Graph* graph = graph_create(parsed_nodes, 0);
         if (!graph) return NULL;
         
         printf("Creating graph with %d vertices and %d edges\n", parsed_nodes, edge_count);
