@@ -50,6 +50,16 @@ void printGraph(Graph* graph) {
     }
 }
 
+//
+Graph* processChatbotResponse() {
+    Graph* graph = createGraph(parsed_nodes);
+    for (int i = 0; i < edge_count; i++) {
+        addEdge(graph, parsed_edges[i][0], parsed_edges[i][1]);
+    }
+    return graph;
+}
+//
+
 Graph* handleUserInput() {
     int vertices, edges, choice, mode;
     char userInput[256];
@@ -119,6 +129,26 @@ Graph* handleUserInput() {
             userInput[strcspn(userInput, "\n")] = 0;
                         
             sendQuery(userInput);
+
+            char userResponse[10];
+            while (1) {
+                printf("\nIs the generated graph parameters correct? (yes/no): ");
+                scanf("%9s", userResponse);
+
+                if (strcmp(userResponse, "yes") == 0) {
+                    printf("\nGenerating the graph...\n\n");
+                    graph = processChatbotResponse();
+                    return graph;
+                } else if (strcmp(userResponse, "no") == 0) {
+                    printf("\nPlease enter a new prompt: ");
+                    getchar(); 
+                    fgets(userInput, sizeof(userInput), stdin);
+                    userInput[strcspn(userInput, "\n")] = '\0'; 
+                    sendQuery(userInput);
+                } else {
+                    printf("Invalid input. Please type yes or no.\n");
+                }
+            }
         }
         return graph;
     }

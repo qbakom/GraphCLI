@@ -11,7 +11,7 @@ void sendQuery(char *userPrompt) {
 
     curl = curl_easy_init();
     if (!curl) {
-        fprintf(stderr, "ERROR: Failed to initialize CURL\n");
+        fprintf(stderr, "[!] Failed to initialize CURL\n");
         return;
     }
 
@@ -21,7 +21,7 @@ void sendQuery(char *userPrompt) {
     snprintf(post_data, sizeof(post_data),
              "{ \"model\": \"qwen2.5-7b-instruct-1m\", "
              "\"messages\": ["
-             "{ \"role\": \"system\", \"content\": \"You are a graph generation assistant. Your task is to generate a valid random graph representation as a JSON object. Return ONLY JSON, no explanations or comments. Always include: { \\\"nodes\\\": <integer>, \\\"edges\\\": [[A,B], [C,D], ...] }. Ensure: (1) Node indexes start at 0, (2) No duplicate or self-loop edges, (3) The number of edges matches the request.\" },"
+             "{ \"role\": \"system\", \"content\": \"You are a graph generation assistant. Your task is to generate a valid random graph representation as a JSON object. Return ONLY JSON, no explanations or comments. Always include: { \\\"nodes\\\": <integer>, \\\"edges\\\": [[A(integer),B(integer)], [C(integer),D(integer)], ...] }. Ensure: (1) Node indexes start at 0, (2) No duplicate or self-loop edges, (3) The number of edges matches the request. Do NOT return more edges than requested. All edges must be unique.\" },"
              "{ \"role\": \"user\", \"content\": \"%s\" }"
              "], \"max_tokens\": 100 }",
              userPrompt);

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cjson/cJSON.h>
+#include "include/api.h"
 #include "include/json_parser.h"
 
 int parsed_nodes = 0;
@@ -91,9 +92,12 @@ int parseAndPrintResponse(char *response, int size, int n) {
     cJSON_Delete(root);
     free(json);
 
+
+    printf("\n");
+    printf("Generated graph parameters: \n");
     printf("Nodes: %d\n", parsed_nodes);
     for (int i = 0; i < edge_count; i++) {
-        printf("Edge %d: %d | %d\n", i, parsed_edges[i][0], parsed_edges[i][1]);
+        printf("Edge %d: [ %d | %d ]\n", i, parsed_edges[i][0], parsed_edges[i][1]);
     }
 
     return totalSize;
