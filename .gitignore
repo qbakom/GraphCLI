@@ -4,3 +4,4 @@ graph.out
 *.out
 .github
 /scripts
+.vscode

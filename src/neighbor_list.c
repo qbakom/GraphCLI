@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "include/api.h"
-#include "include/json_parser.h"
+#include <stdbool.h>
+#include "../include/api.h"
+#include "../include/json_parser.h"
 #include <curl/curl.h>
 
 typedef struct Node {
