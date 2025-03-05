@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "MSYS2 UCRT64",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/msys64/ucrt64/include",
+                "C:/msys64/ucrt64/lib",
+                "C:/msys64/mingw64/include",
+                "C:/msys64/mingw64/lib"
+            ],
+            "defines": [],
+            "compilerPath": "C:/msys64/ucrt64/bin/gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "browse": {
+                "path": [
+                    "C:/msys64/ucrt64/include",
+                    "C:/msys64/mingw64/include"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ],
+    "version": 4
+}
