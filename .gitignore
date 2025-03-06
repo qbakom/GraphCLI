@@ -5,3 +5,6 @@ graph.out
 .github
 /scripts
 .vscode
+*.out
+*.o
+*.obj
