@@ -340,23 +340,39 @@ Graph* handleUserInput() {
 
 void save_graph_to_file(Graph* graph, char* filename) {
     if (!graph || !filename) return;
-    
+
     FILE* file = fopen(filename, "w");
     if (!file) {
         fprintf(stderr, "[!] Error: Could not open file %s for writing\n", filename);
         return;
     }
-    
-    fprintf(file, "%d %d\n\n", graph->V, graph->isDirected);
+
+    fprintf(file, graph->isDirected ? "digraph G {\n" : "graph G {\n");
 
     for (int i = 0; i < graph->V; i++) {
         Node* edge = graph->adjLists[i];
         while (edge) {
-            fprintf(file, "%d %d\n", i, edge->vertex);
+            if (graph->isDirected) {
+                fprintf(file, "    %d -> %d;\n", i, edge->vertex);
+            } else if (i < edge->vertex) {
+                fprintf(file, "    %d -- %d;\n", i, edge->vertex);
+            }
             edge = edge->next;
         }
     }
-    
+
+    fprintf(file, "}\n");
     fclose(file);
-    printf("[i] Graph successfully saved to %s\n", filename);
+    printf("[i] Graph saved to %s\n", filename);
+}
+
+void generate_graph_image(char* dot_filename, char* img_filename) {
+    char command[512];
+    snprintf(command, sizeof(command), "dot -Tpng %s -o %s", dot_filename, img_filename);
+    int result = system(command);
+    if (result == 0) {
+        printf("[i] Graph image generated: %s\n", img_filename);
+    } else {
+        printf("[!] Error generating graph image\n");
+    }
 }

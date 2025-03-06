@@ -32,5 +32,6 @@ graph_error_t graph_free(Graph* graph);
 Graph* graph_generate_random(int vertices, int edgeCount, int isDirected);
 Graph* handleUserInput();
 void save_graph_to_file(Graph* graph, char* filename);
+void generate_graph_image(char* dot_filename, char* img_filename);
 
 #endif // GRAPH_H
