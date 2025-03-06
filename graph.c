@@ -4,27 +4,8 @@
 #include <time.h>
 #include "include/api.h"
 #include "include/json_parser.h"
+#include "include/graph.h"
 #include <curl/curl.h>
-
-typedef enum {
-    GRAPH_OK,
-    GRAPH_ERROR_NULL,
-    GRAPH_ERROR_INVALID_VERTEX,
-    GRAPH_ERROR_MEMORY,
-    GRAPH_ERROR_EDGE_EXISTS
-} graph_error_t;
-
-typedef struct Node {
-    int vertex;
-    struct Node* next;
-} Node;
-
-typedef struct Graph {
-    int V;
-    Node** adjLists;
-    int* degrees;
-    int isDirected;
-} Graph;
 
 extern int parsed_nodes;
 extern int parsed_edges[100][2];
@@ -357,15 +338,25 @@ Graph* handleUserInput() {
     }
 }
 
-int main() {
-    Graph* graph = handleUserInput();
+void save_graph_to_file(Graph* graph, char* filename) {
+    if (!graph || !filename) return;
     
-    if (graph) {
-        graph_display(graph);
-        graph_free(graph);
-    } else {
-        printf("[!] Failed to create graph\n");
+    FILE* file = fopen(filename, "w");
+    if (!file) {
+        fprintf(stderr, "[!] Error: Could not open file %s for writing\n", filename);
+        return;
     }
     
-    return 0;
+    fprintf(file, "%d %d\n\n", graph->V, graph->isDirected);
+
+    for (int i = 0; i < graph->V; i++) {
+        Node* edge = graph->adjLists[i];
+        while (edge) {
+            fprintf(file, "%d %d\n", i, edge->vertex);
+            edge = edge->next;
+        }
+    }
+    
+    fclose(file);
+    printf("[i] Graph successfully saved to %s\n", filename);
 }

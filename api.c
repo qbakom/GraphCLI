@@ -51,7 +51,6 @@ void sendQuery(char *userPrompt) {
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);     // 5 second connect timeout
     curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);      // Enable TCP keepalive
 
-    printf("Sending request to LM Studio...\n");
     res = curl_easy_perform(curl);
 
     if (res != CURLE_OK) {
