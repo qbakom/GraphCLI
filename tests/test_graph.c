@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
-#include "include/graph.h"
+#include "graph.h"
 
 #define TEST_SUCCESS "\033[1;32m[SUCCESS]\033[0m"
 #define TEST_FAILURE "\033[1;31m[FAIL]\033[0m"

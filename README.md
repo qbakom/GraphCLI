@@ -55,7 +55,7 @@ chmod +x install.sh
 1. Install dependencies:
 ```bash
 sudo apt-get update
-sudo apt-get install -y libcurl4-openssl-dev libcjson-dev
+sudo apt-get install -y libcurl4-openssl-dev libcjson-dev graphviz
 ```
 2. Build the application:
 ```bash
@@ -112,9 +112,9 @@ Do you want to save the graph to a file? (yes/no)
 ```
 If you choose **yes**, enter a filename:
 ```
-Enter filename: my_graph.txt
+Enter filename: my_graph
 ```
-Example output in `my_graph.txt`:
+Example output in `my_graph`:
 ```
 5 0
 

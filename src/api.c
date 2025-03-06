@@ -4,8 +4,8 @@
 #include <curl/curl.h>
 #include <ctype.h>
 #include <time.h>
-#include "include/api.h"
-#include "include/json_parser.h"
+#include "api.h"
+#include "json_parser.h"
 
 // Flag to indicate if we need to use the fallback mechanism
 int use_fallback = 0;

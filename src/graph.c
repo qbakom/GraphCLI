@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "include/api.h"
-#include "include/json_parser.h"
-#include "include/graph.h"
 #include <curl/curl.h>
+#include "api.h"
+#include "json_parser.h"
+#include "graph.h"
 
 extern int parsed_nodes;
 extern int parsed_edges[100][2];
@@ -174,6 +174,7 @@ Graph* graph_generate_random(int vertices, int edgeCount, int isDirected) {
 Graph* handleUserInput() {
     int vertices, edges, mode, isDirected;
     char userInput[256];
+    char buffer[256];
     
     printf("Choose program operation mode:\n");
     printf("1. Manual parameters input\n");
@@ -182,100 +183,131 @@ Graph* handleUserInput() {
     while (1) {
         printf("Enter choice (1 or 2): ");
         if (scanf("%d", &mode) != 1) {
-            printf("[!] Invalid input. Please enter 1 or 2.\n");
             while (getchar() != '\n');
+            printf("[!] Invalid input. Please enter 1 or 2.\n");
             continue;
         }
         
         if (mode == 1 || mode == 2) break;
         printf("[!] Invalid choice. Please enter 1 or 2.\n");
     }
+    while (getchar() != '\n');
 
     if (mode == 1) {
         printf("Enter the number of vertices: ");
-        while (scanf("%d", &vertices) != 1 || vertices <= 0) {
-            printf("[!] Invalid input. Please enter a positive integer: ");
+        if (scanf("%d", &vertices) != 1 || vertices <= 0) {
             while (getchar() != '\n');
+            printf("[!] Invalid input. Using default value of 5 vertices.\n");
+            vertices = 5;
         }
+        while (getchar() != '\n');
         
         printf("Graph type:\n");
         printf("1. Directed (one-way edges)\n");
         printf("2. Undirected (two-way edges)\n");
+        
         int graphTypeChoice;
-        while (1) {
-            printf("Enter choice (1 or 2): ");
-            if (scanf("%d", &graphTypeChoice) != 1 || 
-               (graphTypeChoice != 1 && graphTypeChoice != 2)) {
-                printf("[!] Invalid input. Please enter 1 or 2.\n");
-                while (getchar() != '\n');
-                continue;
-            }
-            break;
+        printf("Enter choice (1 or 2): ");
+        if (scanf("%d", &graphTypeChoice) != 1 || 
+           (graphTypeChoice != 1 && graphTypeChoice != 2)) {
+            while (getchar() != '\n');
+            printf("[!] Invalid input. Using default: undirected graph.\n");
+            isDirected = 0;
+        } else {
+            isDirected = (graphTypeChoice == 1);
         }
-        isDirected = (graphTypeChoice == 1);
+        while (getchar() != '\n');
         
         printf("Graph generation:\n");
         printf("1. Manual edge input\n");
         printf("2. Random graph\n");
+        
         int genChoice;
-        while (1) {
-            printf("Enter choice (1 or 2): ");
-            if (scanf("%d", &genChoice) != 1 || 
-               (genChoice != 1 && genChoice != 2)) {
-                printf("[!] Invalid input. Please enter 1 or 2.\n");
-                while (getchar() != '\n');
-                continue;
-            }
-            break;
+        printf("Enter choice (1 or 2): ");
+        if (scanf("%d", &genChoice) != 1 || 
+           (genChoice != 1 && genChoice != 2)) {
+            while (getchar() != '\n');
+            printf("[!] Invalid input. Using random graph generation.\n");
+            genChoice = 2;
         }
+        while (getchar() != '\n');
 
         Graph* graph = graph_create(vertices, isDirected);
         if (!graph) return NULL;
         
         if (genChoice == 1) {
             printf("Enter the number of edges: ");
-            while (scanf("%d", &edges) != 1 || edges < 0) {
-                printf("[!] Invalid input. Please enter a non-negative integer: ");
+            if (scanf("%d", &edges) != 1 || edges < 0) {
                 while (getchar() != '\n');
+                int defaultEdges = vertices * 2;
+                printf("[!] Invalid input. Using default value of %d edges.\n", defaultEdges);
+                edges = defaultEdges;
             }
+            while (getchar() != '\n');
 
             int maxEdges = isDirected ? vertices * (vertices - 1) : vertices * (vertices - 1) / 2;
             if (edges > maxEdges) {
                 printf("[!] Maximum possible edges for this graph: %d. Using this value.\n", maxEdges);
                 edges = maxEdges;
             }
+            
+            if (edges == 0) {
+                printf("[!] Cannot create a graph with 0 edges in manual mode. Using 1 edge.\n");
+                edges = 1;
+            }
 
-            for (int i = 0; i < edges; i++) {
-                int src, dest;
-                printf("Enter edge %d [source destination]: ", i + 1);
-                while (scanf("%d %d", &src, &dest) != 2 || 
-                       src < 0 || src >= vertices || 
-                       dest < 0 || dest >= vertices || 
-                       src == dest) {
+            printf("\nInput format for edges: <source> <destination>\n");
+            printf("Both source and destination must be integers between 0 and %d\n", vertices-1);
+            printf("Example: '0 1' creates an edge from vertex 0 to vertex 1\n\n");
+
+            int successful_edges = 0;
+            while (successful_edges < edges) {
+                int src = -1, dest = -1, count = 0;
+                printf("Enter edge %d of %d [source destination]: ", successful_edges + 1, edges);
+                
+                if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+                    printf("[!] Error reading input. Try again.\n");
+                    continue;
+                }
+                
+                count = sscanf(buffer, "%d %d", &src, &dest);
+                
+                if (count != 2) {
+                    printf("[!] Invalid format. Please enter TWO integers separated by space: <source> <destination>\n");
+                    continue;
+                }
+                
+                if (src < 0 || src >= vertices || dest < 0 || dest >= vertices || src == dest) {
                     printf("[!] Invalid edge. Source and destination must be different values between 0 and %d.\n", vertices-1);
-                    printf("Enter edge %d [source destination]: ", i + 1);
-                    while (getchar() != '\n');
+                    continue;
                 }
                 
                 graph_error_t result = graph_add_edge(graph, src, dest);
-                if (result != GRAPH_OK) {
-                    i--;
-                    if (result == GRAPH_ERROR_EDGE_EXISTS) {
-                        printf("[!] Edge already exists. Please enter a different edge.\n");
-                    } else {
-                        printf("[!] Error adding edge. Please try again.\n");
-                    }
+                if (result == GRAPH_OK) {
+                    successful_edges++;
+                    printf("[i] Edge %d -> %d added (%d/%d)\n", src, dest, successful_edges, edges);
+                } else if (result == GRAPH_ERROR_EDGE_EXISTS) {
+                    printf("[!] Edge already exists. Please enter a different edge.\n");
+                } else {
+                    printf("[!] Error adding edge. Please try again.\n");
                 }
             }
         } else {
             printf("Enter the number of edges: ");
-            while (scanf("%d", &edges) != 1 || edges < 0) {
-                printf("[!] Invalid input. Please enter a non-negative integer: ");
+            if (scanf("%d", &edges) != 1 || edges < 0) {
                 while (getchar() != '\n');
+                int defaultEdges = vertices * 2;
+                printf("[!] Invalid input. Using default value of %d edges.\n", defaultEdges);
+                edges = defaultEdges;
             }
+            while (getchar() != '\n');
             
-            graph_free(graph);
-            graph = graph_generate_random(vertices, edges, isDirected);
+            if (edges == 0) {
+                printf("[i] Creating an empty graph with %d vertices and no edges.\n", vertices);
+            } else {
+                graph_free(graph);
+                graph = graph_generate_random(vertices, edges, isDirected);
+            }
         }
         
         return graph;
@@ -284,9 +316,11 @@ Graph* handleUserInput() {
         printf("Describe the graph you want to create in natural language.\n");
         printf("Example: 'Create a directed graph with 5 vertices and 7 edges'\n\n");
         
-        while (getchar() != '\n');
         printf("Your request: ");
-        fgets(userInput, sizeof(userInput), stdin);
+        if (fgets(userInput, sizeof(userInput), stdin) == NULL) {
+            printf("[!] Error reading input. Using default graph parameters.\n");
+            strcpy(userInput, "Create a graph with 5 vertices");
+        }
         userInput[strcspn(userInput, "\n")] = 0;
         
         printf("\nSending request to LM Studio...\n");
@@ -340,23 +374,39 @@ Graph* handleUserInput() {
 
 void save_graph_to_file(Graph* graph, char* filename) {
     if (!graph || !filename) return;
-    
+
     FILE* file = fopen(filename, "w");
     if (!file) {
         fprintf(stderr, "[!] Error: Could not open file %s for writing\n", filename);
         return;
     }
-    
-    fprintf(file, "%d %d\n\n", graph->V, graph->isDirected);
+
+    fprintf(file, graph->isDirected ? "digraph G {\n" : "graph G {\n");
 
     for (int i = 0; i < graph->V; i++) {
         Node* edge = graph->adjLists[i];
         while (edge) {
-            fprintf(file, "%d %d\n", i, edge->vertex);
+            if (graph->isDirected) {
+                fprintf(file, "    %d -> %d;\n", i, edge->vertex);
+            } else if (i < edge->vertex) {
+                fprintf(file, "    %d -- %d;\n", i, edge->vertex);
+            }
             edge = edge->next;
         }
     }
-    
+
+    fprintf(file, "}\n");
     fclose(file);
-    printf("[i] Graph successfully saved to %s\n", filename);
+    printf("[i] Graph saved to %s\n", filename);
+}
+
+void generate_graph_image(char* dot_filename, char* img_filename) {
+    char command[512];
+    snprintf(command, sizeof(command), "dot -Tpng %s -o %s", dot_filename, img_filename);
+    int result = system(command);
+    if (result == 0) {
+        printf("[i] Graph image generated: %s\n", img_filename);
+    } else {
+        printf("[!] Error generating graph image\n");
+    }
 }
