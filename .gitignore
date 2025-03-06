@@ -1,1 +1,7 @@
 graph.out
+*.exe
+*.dll
+*.out
+.github
+/scripts
+.vscode
