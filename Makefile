@@ -38,4 +38,3 @@ $(BUILD_DIR)/test_graph.o: tests/test_graph.c
 
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET) $(TEST_TARGET)
-
