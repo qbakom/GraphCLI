@@ -8,3 +8,5 @@ graph.out
 *.out
 *.o
 *.obj
+/build
+/output
