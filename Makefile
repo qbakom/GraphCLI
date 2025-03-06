@@ -28,4 +28,3 @@ $(TEST_TARGET): $(TEST_OBJ) graph.o json_parser.o api.o
 
 clean:
 	rm -f $(OBJ) $(TARGET) $(TEST_OBJ) $(TEST_TARGET)
-
