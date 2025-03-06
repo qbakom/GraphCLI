@@ -1,31 +1,41 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -g -Iinclude
 LDFLAGS = -lcurl -lcjson
 
-SRC = main.c graph.c api.c json_parser.c
-OBJ = $(SRC:.c=.o)
+SRC_DIR = src
+BUILD_DIR = build
+OBJ_DIR = $(BUILD_DIR)/obj
+
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 TARGET = graph_cli
 
-TEST_SRC = test_graph.c
-TEST_OBJ = $(TEST_SRC:.c=.o)
+TEST_SRC = tests/test_graph.c
+TEST_OBJ = $(BUILD_DIR)/test_graph.o
 TEST_TARGET = test_graph
 
-.PHONY: all clean test
+.PHONY: all clean test dirs
 
-all: $(TARGET)
+all: dirs $(TARGET)
 
-$(TARGET): $(OBJ)
+dirs:
+	mkdir -p $(OBJ_DIR) output
+
+$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-%.o: %.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-test: $(TEST_TARGET)
+test: dirs $(TEST_TARGET)
 	./$(TEST_TARGET)
 
-$(TEST_TARGET): $(TEST_OBJ) graph.o json_parser.o api.o
+$(TEST_TARGET): $(TEST_OBJ) $(filter-out $(OBJ_DIR)/main.o, $(OBJS))
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
+$(BUILD_DIR)/test_graph.o: tests/test_graph.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	rm -f $(OBJ) $(TARGET) $(TEST_OBJ) $(TEST_TARGET)
+	rm -rf $(BUILD_DIR) $(TARGET) $(TEST_TARGET)
 

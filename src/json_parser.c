@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cjson/cJSON.h>
-#include "include/json_parser.h"
+#include "json_parser.h"
 
 int parsed_nodes = 0;
 int parsed_edges[100][2];

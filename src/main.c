@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
-#include "include/graph.h"
-#include "include/api.h"
-#include "include/json_parser.h"
+#include "graph.h"
+#include "api.h"
+#include "json_parser.h"
 
 int main() {
     struct stat st = {0};

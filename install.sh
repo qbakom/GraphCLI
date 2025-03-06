@@ -4,8 +4,8 @@ echo "Installing required dependencies..."
 sudo apt-get update
 sudo apt-get install -y libcurl4-openssl-dev libcjson-dev graphviz
 
-echo "Creating directories for graph files..."
-mkdir -p graphs graph_images
+echo "Creating directories..."
+mkdir -p build/obj output
 
 echo "Building GraphCLI..."
 make clean
