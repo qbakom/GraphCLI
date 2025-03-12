@@ -49,7 +49,7 @@ GraphCLI/
 │── build/            # Build directory (created during compilation)
 │── Makefile          # Build system configuration
 │── README.md         # Project documentation
-│── install.sh        # Installation script (if used)
+│── install.sh        # Installation script
 ```
 
 ---
@@ -70,7 +70,12 @@ chmod +x install.sh
 ```
 
 ### 2. Manual Installation
-1. **Dependencies:** You will need a C compiler (e.g., `gcc`) and `make` installed on your system.  
+1. **Dependencies:** You will need a C compiler (e.g., `gcc`), `make`, `curl` and `cjson` installed on your system. 
+
+   **Ubuntu/Debian:**
+     ```bash
+    sudo apt update && sudo apt install build-essential gcc libcjson-dev libcurl4-openssl-dev make
+     ``` 
 2. **Clone the Repository:**  
    ```bash
    git clone https://example.com/GraphCLI.git
@@ -86,6 +91,21 @@ chmod +x install.sh
    ./graph_cli
    ```
 
+### 3. Manual Compilation Without Make
+If `make` is not available, you can compile the program manually using `gcc`:
+```bash
+gcc -o graph_cli src/*.c -Iinclude -lm -lcurl -lcjson
+```
+This will generate an executable file named `graph_cli` that you can run as usual:
+```bash
+./graph_cli
+```
+Ensure, that you have all required dependencies:
+
+**Ubuntu/Debian:**
+```bash
+sudo apt update && sudo apt install build-essential gcc libcjson-dev libcurl4-openssl-dev make
+  ``` 
 ---
 
 ## LM Studio Setup
@@ -244,6 +264,65 @@ Enter filename (without extension): ai_graph
 
 ---
 
+## Running Tests
+GraphCLI includes a suite of tests to verify the correctness of graph operations. The tests cover core functionalities such as graph creation, adding edges, directed vs. undirected graphs, and random graph generation.
+
+### Running Tests with `make`
+To execute the test suite, use the following command:
+```bash
+make test
+```
+This command compiles and runs `test_graph`, which executes a series of assertions to validate the behavior of the graph implementation.
+
+### Running Tests Without `make`
+If `make` is not available, you can compile and run the test suite manually using `gcc`:
+
+1. **Navigate to the `test` directory:**
+   ```bash
+   cd tests
+   ```
+2. **Compile the test program:**
+   ```bash
+    gcc -o test_graph test_graph.c ../src/graph.c ../src/api.c ../src/json_parser.c -I../include -lcurl -lm -lcjson
+   ```
+   This command compiles `test_graph.c`, linking it with the `graph.c` implementation.
+3. **Run the compiled test program:**
+   ```bash
+   ./test_graph
+   ```
+   This will execute the test suite and display the results.
+
+### Overview of Test Cases
+The tests are located in `test/test_graph.c` and include:
+
+- **Graph Creation Test:** Ensures a graph is correctly initialized with the specified number of vertices.
+- **Adding Edges Test:** Verifies that edges are added properly, and duplicate edges or invalid connections are handled correctly.
+- **Directed Graph Test:** Confirms that directed graphs correctly enforce one-way connections.
+- **Random Graph Generation Test:** Checks that random graphs are generated with the expected number of vertices and edges.
+
+### Example Test Run Output
+After executing the test program, you should see an output similar to the following:
+```bash
+./tests/test_graph
+=== RUNNING TESTS ===
+[SUCCESS] Graph creation
+[SUCCESS] Vertex count = 5
+[SUCCESS] Graph is undirected
+[SUCCESS] Adding edge 0 -> 1
+[SUCCESS] Checking edge existence 0 -> 1
+[SUCCESS] Adding the same edge (should fail)
+[SUCCESS] Adding an edge with invalid indices
+[SUCCESS] Directed graph creation
+[SUCCESS] Adding directed edge 0 -> 1
+[SUCCESS] Checking directed edge 0 -> 1
+[SUCCESS] Edge 1 -> 0 should not exist (directed graph)
+[SUCCESS] Random graph generation
+[SUCCESS] Random graph has 6 vertices
+[SUCCESS] Degree array exists
+=== ALL TESTS COMPLETED ===
+```
+
+
 ## Troubleshooting
 
 ### LM Studio Is Not Running
@@ -265,14 +344,6 @@ This likely indicates a problem with the Graphviz library, which is required for
    - On Ubuntu/Debian:
      ```bash
      sudo apt install graphviz
-     ```
-   - On macOS (using Homebrew):
-     ```bash
-     brew install graphviz
-     ```
-   - On Windows (using Chocolatey):
-     ```powershell
-     choco install graphviz
      ```
 
 2. **Verify that Graphviz is accessible in the system path:**
