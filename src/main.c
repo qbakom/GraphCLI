@@ -34,7 +34,7 @@ int main() {
         
         graph_free(graph);
     } else {
-        printf("[!] Failed to create graph\n");
+        printf("[!] Graph creation failed. Please try again.\n");
     }
 
     return 0;

@@ -318,8 +318,8 @@ Graph* handleUserInput() {
         
         printf("Your request: ");
         if (fgets(userInput, sizeof(userInput), stdin) == NULL) {
-            printf("[!] Error reading input. Using default graph parameters.\n");
-            strcpy(userInput, "Create a graph with 5 vertices");
+            printf("[!] Error reading input.\n");
+            return NULL;
         }
         userInput[strcspn(userInput, "\n")] = 0;
         
@@ -328,19 +328,20 @@ Graph* handleUserInput() {
         sendQuery(userInput);
         
         if (use_fallback) {
-            createFallbackGraph(userInput);
+            printf("[!] Failed to get a response from LM Studio.\n");
+            printf("[!] Please check if LM Studio is running and try again.\n");
+            return NULL;
         } else {
             finishJsonParsing();
             
             if (parsed_nodes <= 0) {
                 printf("[!] Failed to parse valid graph from LM Studio response.\n");
-                printf("[!] Using fallback mechanism.\n");
-                createFallbackGraph(userInput);
+                return NULL;
             }
         }
         
         if (parsed_nodes <= 0) {
-            printf("[!] Failed to create graph, even with fallback.\n");
+            printf("[!] No valid graph data received.\n");
             return NULL;
         }
         
