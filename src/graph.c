@@ -194,14 +194,20 @@ Graph* handleUserInput() {
     while (getchar() != '\n');
 
     if (mode == 1) {
-        printf("Enter the number of vertices: ");
-        if (scanf("%d", &vertices) != 1 || vertices <= 0) {
+        printf("Graph generation:\n");
+        printf("1. Manual edge input\n");
+        printf("2. Random graph\n");
+        
+        int genChoice;
+        printf("Enter choice (1 or 2): ");
+        if (scanf("%d", &genChoice) != 1 || 
+           (genChoice != 1 && genChoice != 2)) {
             while (getchar() != '\n');
-            printf("[!] Invalid input. Using default value of 5 vertices.\n");
-            vertices = 5;
+            printf("[!] Invalid input. Using random graph generation.\n");
+            genChoice = 2;
         }
         while (getchar() != '\n');
-        
+
         printf("Graph type:\n");
         printf("1. Directed (one-way edges)\n");
         printf("2. Undirected (two-way edges)\n");
@@ -218,17 +224,11 @@ Graph* handleUserInput() {
         }
         while (getchar() != '\n');
         
-        printf("Graph generation:\n");
-        printf("1. Manual edge input\n");
-        printf("2. Random graph\n");
-        
-        int genChoice;
-        printf("Enter choice (1 or 2): ");
-        if (scanf("%d", &genChoice) != 1 || 
-           (genChoice != 1 && genChoice != 2)) {
+        printf("Enter the number of vertices: ");
+        if (scanf("%d", &vertices) != 1 || vertices <= 0) {
             while (getchar() != '\n');
-            printf("[!] Invalid input. Using random graph generation.\n");
-            genChoice = 2;
+            printf("[!] Invalid input. Using default value of 5 vertices.\n");
+            vertices = 5;
         }
         while (getchar() != '\n');
 
