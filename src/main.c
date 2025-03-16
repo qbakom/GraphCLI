@@ -7,10 +7,13 @@
 #include "json_parser.h"
 
 int main() {
-    struct stat st = {0};
-    if (stat("output", &st) == -1) {
-        mkdir("output", 0700);
-    }
+    
+    // struct stat st = {0};            Unix/Linux: mkdir(path, permissions) - Takes two arguments
+    //                                  Windows: mkdir(path) - Takes only one argument
+    // if (stat("output", &st) == -1) {
+    //     mkdir("output", 0700);
+    // }
+    // besides Makefile is doing it anyways
   
     Graph* graph = handleUserInput();
 
