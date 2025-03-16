@@ -408,6 +408,7 @@ void generate_graph_image(char* dot_filename, char* img_filename) {
     if (result == 0) {
         printf("[i] Graph image generated: %s\n", img_filename);
     } else {
-        printf("[!] Error generating graph image\n");
+        printf("[!] Graphviz not installed - visualization skipped\n");
+        printf("[i] The DOT file is still available at: %s\n", dot_filename);
     }
 }
