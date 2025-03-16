@@ -28,7 +28,7 @@ void sendQuery(char *userPrompt) {
     snprintf(post_data, sizeof(post_data),
              "{ \"model\": \"local-model\", "
              "\"messages\": ["
-             "{ \"role\": \"system\", \"content\": \"You are a graph generation assistant. Generate ONLY valid JSON with no other text. Format: {\\\"nodes\\\": <integer>, \\\"edges\\\": [[A,B], [C,D], ...]}. Nodes start at 0, no duplicates or self-loops.\" },"
+             "{ \"role\": \"system\", \"content\": \"You are a graph generation assistant. Generate ONLY valid JSON with no other text. Format: {\\\"nodes\\\": <integer>, \\\"edges\\\": [[A,B], [C,D], ...]}. Rules: 1) Nodes are numbered from 0 to N-1. 2) No duplicate edges or self-loops. 3) IMPORTANT: Every node must be connected to at least one other node. 4) For undirected graphs, list each edge once - your code will handle bidirectionality. 5) Ensure exactly the requested number of edges.\" },"
              "{ \"role\": \"user\", \"content\": \"%s\" }"
              "], \"temperature\": 0.1, \"max_tokens\": 1000, \"stream\": false }",
              userPrompt);
